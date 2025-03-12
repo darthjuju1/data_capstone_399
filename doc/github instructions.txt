@@ -1,0 +1,35 @@
+How to do repo stuff!
+
+Download git bash for your OS
+
+Command Prompt:
+	cd to the location where you'll save the repo files
+	-> git clone https://github.com/your-username/your-private-repo.git
+		- This may not work so SSH will be required: https://docs.github.com/en/authentication/connecting-to-github-with-ssh
+
+Pentaho: 
+	Click on Connect (top right corner)
+	-> Repository Manager
+	-> Add
+	-> pick a display name, and then Browse to the location of your cloned repo
+	-> Save	
+
+______________________________________
+After you've finished working on files
+______________________________________
+
+Command Prompt:
+	cd to the repo location
+	-> git add .
+	-> git commit -m "message describing whatever files/changes were made"
+	-> git push origin main (or master)
+
+
+______________________________________
+To pull the most recent files
+______________________________________
+
+Command Prompt:
+	cd to the repo location
+	-> git pull origin main (or master)
+
