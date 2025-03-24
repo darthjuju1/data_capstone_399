@@ -3,6 +3,7 @@ import lyricsgenius
 from dotenv import load_dotenv
 import spotipy
 from spotipy_functions import get_song_id, get_token
+import time
 
 token = get_token()
 sp = spotipy.Spotify(auth=token)

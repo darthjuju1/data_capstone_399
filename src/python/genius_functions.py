@@ -7,6 +7,7 @@ import os # Necessary for loading an enviornment
 import base64 # Necessary for encoding the client ID and secret
 import requests # Necessary for making a POST request to the Spotify API  
 import json # Necessary for parsing the JSON response from the Spotify API
+import time
 
 
 genius = lyricsgenius.Genius("_F0e3onUyr31nflC3l2HUMOXl1xqX5ABSIPAd0PMpwLfy8ViEhxeDJESGV52IvlY")
@@ -34,13 +35,14 @@ def generate_csv(top_songs, file_path, start_index=0):
 
     count = start_index
     lyrics_list = []
+    timeout = time.time() + 60 * 55 # 55 minutes from now
 
     with open(file_path, 'w', newline='', encoding='utf-8') as csvfile:
         fieldnames = ['Track Name', 'Artist Name', 'Genre', 'Year', 'Lyrics', 'Spotify Genres', 'Release Date', 'Popularity', 'Explicit']
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames, quoting=csv.QUOTE_ALL)
         writer.writeheader()
 
-        while len(lyrics_list) < 10 and count < len(track_title):
+        while time.time() < timeout and count < len(track_title):
             song_title = track_title[count]
             artist = artist_name[count]
             year = years[count]
