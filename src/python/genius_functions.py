@@ -13,21 +13,35 @@ import time
 genius = lyricsgenius.Genius("_F0e3onUyr31nflC3l2HUMOXl1xqX5ABSIPAd0PMpwLfy8ViEhxeDJESGV52IvlY")
 
 
-def generate_csv(top_songs, file_path, start_index=0):
+def generate_csv(top_songs, file_path, start_index=0, create_copy=False):
     """
     Parameters 
     top_songs: DataFrame containing the top songs
     file_path: Name of the file to write to
+    start_index: Index to start from in the DataFrame (default=0)
+    create_copy: If True, creates a copy of the CSV instead of overwriting (default=False)
     ----------------
     Description 
     This function will take in the DataFrame containing the top songs and write the song titles and artist names to a CSV file.
     Needs LyricsGenius to be installed, as well as a Genius API key and a specifically formatted CSV file.
     ----------------
     Returns
-    file_name = CSV file with the song titles and artist names
-    index = The index of the last song written to the CSV file
+    If create_copy=False:
+        index = The index of the last song written to the CSV file
+    If create_copy=True:
+        (index, copy_path) = The index of the last song written and the path to the copied CSV file
     """
     from spotipy_functions import get_song_metadata
+    import os
+    
+    # If creating a copy, modify the file path to indicate it's a copy
+    if create_copy:
+        file_name, file_ext = os.path.splitext(file_path)
+        copy_path = f"{file_name}_copy{file_ext}"
+        output_path = copy_path
+    else:
+        output_path = file_path
+    
     artist_name = top_songs['Artist Name(s)']
     track_title = top_songs['Track Name']
     genres = top_songs['Artist Genres']
@@ -37,7 +51,7 @@ def generate_csv(top_songs, file_path, start_index=0):
     lyrics_list = []
     timeout = time.time() + 60 * 55 # 55 minutes from now
 
-    with open(file_path, 'w', newline='', encoding='utf-8') as csvfile:
+    with open(output_path, 'w', newline='', encoding='utf-8') as csvfile:
         fieldnames = ['Track Name', 'Artist Name', 'Genre', 'Year', 'Lyrics', 'Spotify Genres', 'Release Date', 'Popularity', 'Explicit']
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames, quoting=csv.QUOTE_ALL)
         writer.writeheader()
@@ -86,7 +100,11 @@ def generate_csv(top_songs, file_path, start_index=0):
                 count += 1
         print(f"Collected lyrics for {len(lyrics_list)} songs.")
     
-    return count
+    # Return either just the count or both count and copy path based on the parameter
+    if create_copy:
+        return count, copy_path
+    else:
+        return count
 
 
 
@@ -130,6 +148,21 @@ def search_genius(search_term):
         print(f"Error: {response.status_code}")
 
     return 
+
+def csv_merger(csv1, csv2):
+    merged_csv = pd.concat([pd.read_csv(csv1), pd.read_csv(csv2)], ignore_index=True)
+    
+    # Save the merged CSV to the path of csv1
+    merged_csv.to_csv(csv1, index=False)
+    
+    # Delete the csv2 file
+    if os.path.exists(csv2):
+        os.remove(csv2)
+        print(f"{csv2} has been deleted.")
+    else:
+        print(f"{csv2} does not exist.")
+    
+    return merged_csv
 
 def count_rows_in_csv(file_path):
     if not os.path.exists(file_path):
