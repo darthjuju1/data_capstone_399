@@ -1,13 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <transformation>
   <info>
-    <name>Transformation 1</name>
+    <name>vectorization</name>
     <description/>
     <extended_description/>
     <trans_version/>
     <trans_type>Normal</trans_type>
+    <trans_status>0</trans_status>
     <directory>/</directory>
     <parameters>
+      <parameter>
+        <name>API_HOST</name>
+        <default_value>api.pinecone.io</default_value>
+        <description/>
+      </parameter>
+      <parameter>
+        <name>PINECONE_API_KEY</name>
+        <default_value>pcsk_5bVfwr_FVWYHKchi2cYZCopXyb9JQreVW1hUfm97xcuAnamBkQtN31FXeGGpnfTZWnV1N8</default_value>
+        <description/>
+      </parameter>
     </parameters>
     <log>
       <trans-log-table>
@@ -427,19 +438,39 @@
     <clusterschemas>
     </clusterschemas>
     <created_user>-</created_user>
-    <created_date>2025/03/11 12:23:15.738</created_date>
+    <created_date>2025/03/27 12:52:32.218</created_date>
     <modified_user>-</modified_user>
-    <modified_date>2025/03/11 12:23:15.738</modified_date>
+    <modified_date>2025/03/27 12:52:32.218</modified_date>
     <key_for_session_key>H4sIAAAAAAAA/wMAAAAAAAAAAAA=</key_for_session_key>
     <is_key_private>N</is_key_private>
   </info>
   <notepads>
   </notepads>
   <order>
+    <hop>
+      <from>Get variables</from>
+      <to>REST client - Find all vectors in index/namespace of Pinecone vector DB</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>JSON input - extract namespace and vectors</from>
+      <to>JSON input - extract vector elements</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>JSON input - extract vector elements</from>
+      <to>Select values - Drop unwanted fields</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>REST client - Find all vectors in index/namespace of Pinecone vector DB</from>
+      <to>JSON input - extract namespace and vectors</to>
+      <enabled>Y</enabled>
+    </hop>
   </order>
   <step>
-    <name>CSV file input</name>
-    <type>CsvInput</type>
+    <name>Get variables</name>
+    <type>GetVariable</type>
     <description/>
     <distribute>Y</distribute>
     <custom_distribution/>
@@ -448,62 +479,28 @@
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <filename>C:\Users\jnaid\demo_test\data399\cleaned_df.csv</filename>
-    <filename_field/>
-    <rownum_field/>
-    <include_filename>N</include_filename>
-    <separator>,</separator>
-    <enclosure>"</enclosure>
-    <header>Y</header>
-    <buffer_size>50000</buffer_size>
-    <lazy_conversion>Y</lazy_conversion>
-    <add_filename_result>N</add_filename_result>
-    <parallel>N</parallel>
-    <newline_possible>N</newline_possible>
-    <format>mixed</format>
-    <encoding/>
     <fields>
       <field>
-        <name>artist</name>
+        <name>api_host</name>
+        <variable>${API_HOST}</variable>
         <type>String</type>
         <format/>
-        <currency>$</currency>
-        <decimal>.</decimal>
-        <group>,</group>
-        <length>44</length>
+        <currency/>
+        <decimal/>
+        <group/>
+        <length>-1</length>
         <precision>-1</precision>
         <trim_type>none</trim_type>
       </field>
       <field>
-        <name>song</name>
+        <name>api_key</name>
+        <variable>${PINECONE_API_KEY}</variable>
         <type>String</type>
         <format/>
-        <currency>$</currency>
-        <decimal>.</decimal>
-        <group>,</group>
-        <length>77</length>
-        <precision>-1</precision>
-        <trim_type>none</trim_type>
-      </field>
-      <field>
-        <name>link</name>
-        <type>String</type>
-        <format/>
-        <currency>$</currency>
-        <decimal>.</decimal>
-        <group>,</group>
-        <length>102</length>
-        <precision>-1</precision>
-        <trim_type>none</trim_type>
-      </field>
-      <field>
-        <name>text</name>
-        <type>String</type>
-        <format/>
-        <currency>$</currency>
-        <decimal>.</decimal>
-        <group>,</group>
-        <length>3837</length>
+        <currency/>
+        <decimal/>
+        <group/>
+        <length>-1</length>
         <precision>-1</precision>
         <trim_type>none</trim_type>
       </field>
@@ -517,13 +514,168 @@
       </output>
     </remotesteps>
     <GUI>
-      <xloc>200</xloc>
-      <yloc>100</yloc>
+      <xloc>337</xloc>
+      <yloc>165</yloc>
       <draw>Y</draw>
     </GUI>
   </step>
   <step>
-    <name>REST client</name>
+    <name>JSON input - extract namespace and vectors</name>
+    <type>JsonInput</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <include>N</include>
+    <include_field/>
+    <rownum>N</rownum>
+    <addresultfile>N</addresultfile>
+    <readurl>N</readurl>
+    <removeSourceField>N</removeSourceField>
+    <IsIgnoreEmptyFile>N</IsIgnoreEmptyFile>
+    <doNotFailIfNoFile>Y</doNotFailIfNoFile>
+    <ignoreMissingPath>Y</ignoreMissingPath>
+    <defaultPathLeafToNull>Y</defaultPathLeafToNull>
+    <includeNulls>N</includeNulls>
+    <rownum_field/>
+    <file>
+      <name/>
+      <filemask/>
+      <exclude_filemask/>
+      <file_required>N</file_required>
+      <include_subfolders>N</include_subfolders>
+    </file>
+    <fields>
+      <field>
+        <name>namespace</name>
+        <path>$.namespace</path>
+        <type>String</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <length>-1</length>
+        <precision>-1</precision>
+        <trim_type>none</trim_type>
+        <repeat>N</repeat>
+      </field>
+      <field>
+        <name>vectors_result</name>
+        <path>$.vectors</path>
+        <type>String</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <length>-1</length>
+        <precision>-1</precision>
+        <trim_type>none</trim_type>
+        <repeat>N</repeat>
+      </field>
+    </fields>
+    <limit>0</limit>
+    <IsInFields>Y</IsInFields>
+    <IsAFile>N</IsAFile>
+    <valueField>result</valueField>
+    <shortFileFieldName/>
+    <pathFieldName/>
+    <hiddenFieldName/>
+    <lastModificationTimeFieldName/>
+    <uriNameFieldName/>
+    <rootUriNameFieldName/>
+    <extensionFieldName/>
+    <sizeFieldName/>
+    <attributes/>
+    <cluster_schema/>
+    <remotesteps>
+      <input>
+      </input>
+      <output>
+      </output>
+    </remotesteps>
+    <GUI>
+      <xloc>689</xloc>
+      <yloc>277</yloc>
+      <draw>Y</draw>
+    </GUI>
+  </step>
+  <step>
+    <name>JSON input - extract vector elements</name>
+    <type>JsonInput</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <include>N</include>
+    <include_field/>
+    <rownum>N</rownum>
+    <addresultfile>N</addresultfile>
+    <readurl>N</readurl>
+    <removeSourceField>Y</removeSourceField>
+    <IsIgnoreEmptyFile>N</IsIgnoreEmptyFile>
+    <doNotFailIfNoFile>Y</doNotFailIfNoFile>
+    <ignoreMissingPath>Y</ignoreMissingPath>
+    <defaultPathLeafToNull>Y</defaultPathLeafToNull>
+    <includeNulls>N</includeNulls>
+    <rownum_field/>
+    <file>
+      <name/>
+      <filemask/>
+      <exclude_filemask/>
+      <file_required>N</file_required>
+      <include_subfolders>N</include_subfolders>
+    </file>
+    <fields>
+      <field>
+        <name>vector_element</name>
+        <path>$..id</path>
+        <type>String</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <length>-1</length>
+        <precision>-1</precision>
+        <trim_type>none</trim_type>
+        <repeat>N</repeat>
+      </field>
+    </fields>
+    <limit>0</limit>
+    <IsInFields>Y</IsInFields>
+    <IsAFile>N</IsAFile>
+    <valueField>vectors_result</valueField>
+    <shortFileFieldName/>
+    <pathFieldName/>
+    <hiddenFieldName/>
+    <lastModificationTimeFieldName/>
+    <uriNameFieldName/>
+    <rootUriNameFieldName/>
+    <extensionFieldName/>
+    <sizeFieldName/>
+    <attributes/>
+    <cluster_schema/>
+    <remotesteps>
+      <input>
+      </input>
+      <output>
+      </output>
+    </remotesteps>
+    <GUI>
+      <xloc>689</xloc>
+      <yloc>405</yloc>
+      <draw>Y</draw>
+    </GUI>
+  </step>
+  <step>
+    <name>REST client - Find all vectors in index/namespace of Pinecone vector DB</name>
     <type>Rest</type>
     <description/>
     <distribute>Y</distribute>
@@ -535,7 +687,7 @@
     </partitioning>
     <applicationType>TEXT PLAIN</applicationType>
     <method>GET</method>
-    <url/>
+    <url>https://example-index4-9l7icfb.svc.aped-4627-b74a.pinecone.io/vectors/list?namespace=example-namespace&amp;prefix=vec#</url>
     <urlInField>N</urlInField>
     <dynamicMethod>N</dynamicMethod>
     <methodFieldName/>
@@ -549,7 +701,11 @@
     <trustStoreFile/>
     <trustStorePassword>Encrypted </trustStorePassword>
     <headers>
-      </headers>
+      <header>
+        <field>api_key</field>
+        <name>Api-Key</name>
+      </header>
+    </headers>
     <parameters>
       </parameters>
     <matrixParameters>
@@ -569,8 +725,60 @@
       </output>
     </remotesteps>
     <GUI>
-      <xloc>416</xloc>
-      <yloc>128</yloc>
+      <xloc>688</xloc>
+      <yloc>160</yloc>
+      <draw>Y</draw>
+    </GUI>
+  </step>
+  <step>
+    <name>Select values - Drop unwanted fields</name>
+    <type>SelectValues</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <fields>
+      <field>
+        <name>api_host</name>
+      </field>
+      <field>
+        <name>api_key</name>
+      </field>
+      <field>
+        <name>result</name>
+      </field>
+      <field>
+        <name>namespace</name>
+      </field>
+      <field>
+        <name>vector_element</name>
+      </field>
+      <select_unspecified>N</select_unspecified>
+      <remove>
+        <name>api_host</name>
+      </remove>
+      <remove>
+        <name>api_key</name>
+      </remove>
+      <remove>
+        <name>result</name>
+      </remove>
+    </fields>
+    <attributes/>
+    <cluster_schema/>
+    <remotesteps>
+      <input>
+      </input>
+      <output>
+      </output>
+    </remotesteps>
+    <GUI>
+      <xloc>993</xloc>
+      <yloc>405</yloc>
       <draw>Y</draw>
     </GUI>
   </step>
@@ -579,5 +787,13 @@
   <slave-step-copy-partition-distribution>
   </slave-step-copy-partition-distribution>
   <slave_transformation>N</slave_transformation>
-  <attributes/>
+  <attributes>
+    <group>
+      <name>explorerState</name>
+      <attribute>
+        <key>REST client - Find all vectors in index/namespace of Pinecone vector DB</key>
+        <value>{"tabs":{"list":[{"type":"Table","visualization":{"typeId":"@pentaho/det-visual-flat-table@10.2.0.0-222/pentaho/det/visual/flatTable/Model","model":{"columns":{"fields":[]}},"visualModel":{"columns":{"fields":[]}},"hasFieldsSelected":false,"fieldsLabels":[{"id":"api_host:defaultType","label":"Api host"},{"id":"result:defaultType","label":"Result"}]},"id":"M8RN6LFW0.GCMFKOEKX8V","counter":0,"label":"Table","renamed":false,"modeName":"STREAM","filters":[],"searchOptions":{"text":"","focus":false,"categoryCollapsed":{},"categoryCollapsedFiltered":{}},"layoutOptions":{"layoutPanelCollapsed":false,"filtersPanelCollapsed":true}}]},"selectedTabId":"M8RN6LFW0.GCMFKOEKX8V"}</value>
+      </attribute>
+    </group>
+  </attributes>
 </transformation>
