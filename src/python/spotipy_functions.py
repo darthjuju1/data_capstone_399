@@ -1,15 +1,23 @@
 import spotipy
-from spotipy.oauth2 import SpotifyClientCredentials
+from spotipy.oauth2 import SpotifyOAuth
 import csv
 import pandas as pd
 from dotenv import load_dotenv
 import os
 import base64
 import requests
+import time
 
 load_dotenv()
 client_id = os.getenv("client_id") #referencing client id and secret from the .env file in quotes for some reason
 client_secret = os.getenv("client_secret")
+
+def get_audio_features(song_id):
+    audio_features = sp.audio_features(song_id)
+    if audio_features:
+        return audio_features[0]
+    return None
+
 
 def get_token():
     """
@@ -22,6 +30,7 @@ def get_token():
     Returns
     token: Spotify API access token
     """
+    
     auth_string = client_id + ":" + client_secret
     auth_bytes = auth_string.encode('utf-8')
     auth_base64 = str(base64.b64encode(auth_bytes), 'utf-8')
@@ -51,6 +60,19 @@ def get_token():
 
 def get_auth_header(token):
     return {'Authorization': f'Bearer {token}'}
+
+def get_token_2():
+    sp_oauth = SpotifyOAuth(client_id="client_id",
+                             client_secret="client_secret",
+                             redirect_uri="your_redirect_uri",
+                             scope="user-library-read playlist-read-private")
+    token_info = sp_oauth.get_cached_token()  # Get cached token if available
+
+    # If cached token is expired or not available, request a new one
+    if not token_info:
+        token_info = sp_oauth.get_access_token(sp_oauth.get_authorize_url())
+    
+    return token_info['access_token']
 
 token = get_token()
 sp = spotipy.Spotify(auth=token)
