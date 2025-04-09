@@ -5,13 +5,12 @@ import csv
 from dotenv import load_dotenv # Load the environment file .env in order to get enviornment variables (in this case client ID and secret)
 import os # Necessary for loading an enviornment
 import base64 # Necessary for encoding the client ID and secret
-import requests # Necessary for making a POST request to the Spotify API  
+import requests # Necessary for making a POST request to the Spotify API and web-scraping
 import json # Necessary for parsing the JSON response from the Spotify API
 import time
 
 
 genius = lyricsgenius.Genius("_F0e3onUyr31nflC3l2HUMOXl1xqX5ABSIPAd0PMpwLfy8ViEhxeDJESGV52IvlY")
-
 
 def generate_csv(top_songs, file_path, start_index=0, create_copy=False):
     """
@@ -35,6 +34,8 @@ def generate_csv(top_songs, file_path, start_index=0, create_copy=False):
     import os
     
     # If creating a copy, modify the file path to indicate it's a copy
+    df = pd.read_csv(file_path) # Read the CSV file to check if it exists
+    existing_songs = set(zip(df['Track Name'].str.lower(), df['Artist Name'].str.lower()))
     if create_copy:
         file_name, file_ext = os.path.splitext(file_path)
         copy_path = f"{file_name}_copy{file_ext}"
@@ -48,6 +49,7 @@ def generate_csv(top_songs, file_path, start_index=0, create_copy=False):
     years = top_songs['Album Release Date']
 
     count = start_index
+    error_count = 0
     lyrics_list = []
     timeout = time.time() + 60 * 55 # 55 minutes from now
 
@@ -60,41 +62,46 @@ def generate_csv(top_songs, file_path, start_index=0, create_copy=False):
             song_title = track_title[count]
             artist = artist_name[count]
             year = years[count]
-        
-            if not song_title or not artist or isinstance(song_title, float) or isinstance(artist, float):
-                print(f"Invalid data for song {count + 1}: '{song_title}' by '{artist}', skipping...")
-                count += 1
-                continue
             
             try:
-                # Fetch lyrics from Genius
-                song = genius.search_song(song_title, artist)
-                
-                if song:
-                    # Get Spotify metadata
-                    spotify_metadata = get_song_metadata(song_title, artist)
-                    if spotify_metadata:
-                        writer.writerow({
-                            'Track Name': song.title,
-                            'Artist Name': song.artist,
-                            'Genre': genres[count],  # From the DataFrame
-                            'Year': year,  # From the DataFrame
-                            'Lyrics': song.lyrics,
-                            'Spotify Genres': spotify_metadata['genres'],
-                            'Release Date': spotify_metadata['release_date'],
-                            'Popularity': spotify_metadata['popularity'],
-                            'Explicit': spotify_metadata['explicit'],
-                        })
-
-                        lyrics_list.append(song.lyrics)
-                        print(f"Song {count + 1} found: {song_title} by {artist}")
-                        count += 1
-                    else:
-                        print(f"Spotify metadata for '{song_title}' by '{artist}' not found. Skipping...")
-                        count += 1
-                else:
-                    print(f"Song '{song_title}' by '{artist}' not found in Genius. Skipping...")
+                if song_title in existing_songs:
                     count += 1
+                    error_count += 1
+                    print(f"Song '{song_title}' by '{artist}' already exists in the dataset. Skipping...")
+                    continue
+                else:
+                # Fetch lyrics from Genius
+                    song = genius.search_song(song_title, artist)
+                    if song:
+                        error_count = 0
+                        # Get Spotify metadata
+                        spotify_metadata = get_song_metadata(song_title, artist)
+                        if spotify_metadata:
+                            writer.writerow({
+                                'Track Name': song.title,
+                                'Artist Name': song.artist,
+                                'Genre': genres[count],  # From the DataFrame
+                                'Year': year,  # From the DataFrame
+                                'Lyrics': song.lyrics,
+                                'Spotify Genres': spotify_metadata['genres'],
+                                'Release Date': spotify_metadata['release_date'],
+                                'Popularity': spotify_metadata['popularity'],
+                                'Explicit': spotify_metadata['explicit'],
+                            })
+
+                            lyrics_list.append(song.lyrics)
+                            print(f"Song {count + 1} found: {song_title} by {artist}")
+                            count += 1
+                        else:
+                            print(f"Spotify metadata for '{song_title}' by '{artist}' not found. Skipping...")
+                            count += 1
+                    else:
+                        print(f"Song '{song_title}' by '{artist}' not found in Genius. Skipping...")
+                        error_count += 1
+                        if error_count > 5:
+                            print("Too many errors. Stopping the process.")
+                            break
+                        count += 1
             except Exception as e:
                 print(f"Error occurred while fetching lyrics for {song_title} by {artist}: {e}")
                 count += 1
