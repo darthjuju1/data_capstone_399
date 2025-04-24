@@ -30,7 +30,7 @@ def get_decades(df):
 
     return decades_list
 
-def plotly_scatter(df, year):
+def plotly_scatter(df, year, filepath):
     """
     Description
     Takes in a DataFrame consisting of PCA data of lyrical similarity across genres and decades, and produces an interactive scatterplot.
@@ -117,9 +117,9 @@ def plotly_scatter(df, year):
     )
 
     # save the plot as an HTML file for embedding
-    fig.write_html(f'C:/Users/Daniel Day/Downloads/School/Data-399/data_capstone_399/src/Visualizations/{year}_pca_scatterplot.html')
+    fig.write_html(f'{filepath}/{year}_pca_scatterplot.html')
 
-def decades_scatter(decades_list):
+def decades_scatter(decades_list, filepath):
     """
     Description
     Establish list of decades to iterate through and call the plotly_scatter function for each decade.
@@ -132,7 +132,8 @@ def decades_scatter(decades_list):
     """
     for i, decade_df in enumerate(decades_list):
         decade_name = ['1960s', '1970s', '1980s', '1990s', '2000s', '2010s', '2020s'][i]
-        plotly_scatter(decade_df, decade_name)
+        plotly_scatter(decade_df, decade_name, filepath)
+        return filepath
 
 def plotly_combined_line_graph(df):
     """
@@ -214,7 +215,7 @@ def plotly_combined_line_graph(df):
     
     return fig
 
-def create_genre_radial_plot(df, Decade):
+def create_genre_radial_plot(df, Decade, filepath):
     """
     Description
     Create a radial plot for each genre showing the distribution of songs
@@ -342,10 +343,10 @@ def create_genre_radial_plot(df, Decade):
         )
     )
 
-    fig.write_html(f'C:/Users/Daniel Day/Downloads/School/Data-399/data_capstone_399/src/Visualizations/{Decade}_radial.html')
+    fig.write_html(f'{filepath}/{Decade}_radial.html')
     return fig
 
-def decades_radial(decades_list):
+def decades_radial(decades_list, filepath):
     """
     Create a genre radial plot for each decade in the provided list.
 
@@ -355,14 +356,12 @@ def decades_radial(decades_list):
     List containing DataFrames for each decade (e.g., [df_1960s, df_1970s, ...])
     """
     for i, decade_df in enumerate(decades_list):
-        # Get the decade from the DataFrame name
         decade_name = ['1960s', '1970s', '1980s', '1990s', '2000s', '2010s', '2020s'][i]
-        
-        # Call the plotly_scatter function for each decade
-        create_genre_radial_plot(decade_df, decade_name)
+        create_genre_radial_plot(decade_df, decade_name, filepath)
+        return filepath
 
 
-def plotly_scatter_explicit(df):
+def plotly_scatter_explicit(df, filepath):
     """
     Create a scatterplot visualization where points are colored by Explicit status
     instead of genre buckets.
@@ -470,5 +469,5 @@ def plotly_scatter_explicit(df):
         legend_title_text='Explicit Content',
         title=f"Songs by Explicit Content and Similarity Score"
     )
-    fig.write_html(f'C:/Users/Daniel Day/Downloads/School/Data-399/data_capstone_399/src/Visualizations/explicit_scatterplot.html')
+    fig.write_html(f'{filepath}/explicit_scatterplot.html')
     return fig
